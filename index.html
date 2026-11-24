@@ -1,114 +1,34 @@
-
-import { serve } from "https://deno.land/std@0.224.0/http/server.ts";
-
-const corsHeaders = {
-  "Access-Control-Allow-Origin": "*",
-  "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
-  "Access-Control-Allow-Methods": "POST, OPTIONS",
-};
-
-serve(async (req) => {
-  if (req.method === "OPTIONS") {
-    return new Response("ok", { headers: corsHeaders });
-  }
-
-  try {
-    const { message, history = [] } = await req.json();
-
-    if (!message || typeof message !== "string") {
-      return new Response(
-        JSON.stringify({ error: "يرجى كتابة الرسالة" }),
-        {
-          status: 400,
-          headers: {
-            ...corsHeaders,
-            "Content-Type": "application/json",
-          },
-        },
-      );
-    }
-
-    const apiKey = Deno.env.get("OPENAI_API_KEY");
-
-    if (!apiKey) {
-      throw new Error("OPENAI_API_KEY غير موجود");
-    }
-
-    const conversation = history
-      .slice(-10)
-      .map((item: any) => ({
-        role: item.role === "assistant" ? "assistant" : "user",
-        content: String(item.content || ""),
-      }));
-
-    conversation.push({
-      role: "user",
-      content: message,
-    });
-
-    const aiResponse = await fetch(
-      "https://api.openai.com/v1/chat/completions",
-      {
-        method: "POST",
-        headers: {
-          "Authorization": `Bearer ${apiKey}`,
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          model: "gpt-4o-mini",
-          messages: [
-            {
-              role: "system",
-              content: `أنت مساعد DXN الذكي، تعمل ضمن مشروع طريقك نحو الحرية المالية.
-
-مهامك:
-- الرد باللغة العربية الواضحة والودية.
-- مساعدة العملاء في التعرف على منتجات DXN.
-- شرح التسويق المباشر وبناء الفريق واستقطاب الشركاء.
-- مساعدة العملاء في الطلبات والأسعار والتسجيل.
-- صياغة رسائل واتساب احترافية.
-- إذا لم تعرف السعر أو المعلومة، لا تخترعها.
-- لا تدّع أن منتجات DXN تعالج الأمراض أو تغني عن الطبيب.
-- كن مختصراً، محترماً، ومشجعاً.
-- عند اهتمام العميل بالتسجيل أو الشراء، وجّهه للتواصل عبر واتساب.`,
-            },
-            ...conversation,
-          ],
-          temperature: 0.7,
-        }),
-      },
-    );
-
-    const data = await aiResponse.json();
-
-    if (!aiResponse.ok) {
-      throw new Error(data.error?.message || "خطأ في خدمة الذكاء الاصطناعي");
-    }
-
-    const reply =
-      data.choices?.[0]?.message?.content || "لم أتمكن من إنشاء رد.";
-
-    return new Response(
-      JSON.stringify({ reply }),
-      {
-        headers: {
-          ...corsHeaders,
-          "Content-Type": "application/json",
-        },
-      },
-    );
-  } catch (error) {
-    return new Response(
-      JSON.stringify({
-        error: error instanceof Error ? error.message : "حدث خطأ",
-      }),
-      {
-        status: 500,
-        headers: {
-          ...corsHeaders,
-          "Content-Type": "application/json",
-        },
-      },
-    );
-  }
-});
+<!DOCTYPE html>
+<html lang="ar" dir="rtl" translate="no">
+<head>
+<meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><meta name="google" content="notranslate"><meta name="robots" content="noindex">
+<meta name="theme-color" content="#0c241d"><title>مساعد DXN الذكي</title><meta name="description" content="مساعد DXN الذكي لإدارة العملاء والردود التجريبية"><meta name="google" content="notranslate">
+<style>
+:root{--bg:#081611;--panel:#10271e;--panel2:#153528;--green:#20c879;--lime:#a7ef58;--text:#f2fff7;--muted:#9db7a8;--line:#244334;--gold:#e8c36b}
+*{box-sizing:border-box}body{margin:0;background:linear-gradient(145deg,#07140f,#0c2118 55%,#081711);font-family:system-ui,-apple-system,"Segoe UI",Tahoma,Arial;color:var(--text);direction:rtl;text-align:right}button,input,textarea{font:inherit}button{cursor:pointer;border:0}.app{max-width:1200px;margin:auto;padding:18px}.top{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:14px 16px;border:1px solid var(--line);background:#0d2119d9;border-radius:18px;position:sticky;top:8px;z-index:3;backdrop-filter:blur(12px)}.brand{display:flex;align-items:center;gap:12px}.logo{width:48px;height:48px;border-radius:15px;background:linear-gradient(140deg,var(--green),#176c45);display:grid;place-items:center;font-weight:900;font-size:22px;color:#062014;box-shadow:0 7px 24px #0b6d3b55}.brand h1{font-size:17px;margin:0}.brand p{margin:4px 0 0;color:var(--muted);font-size:12px}.top-actions{display:flex;gap:8px;align-items:center}.badge{background:#143a28;color:#8af0b8;padding:8px 12px;border-radius:99px;font-size:12px;border:1px solid #286a46}.btn{border-radius:12px;padding:10px 14px;font-weight:700}.btn-primary{background:var(--green);color:#042315}.btn-secondary{background:#173528;color:var(--text);border:1px solid var(--line)}.hero{padding:24px 4px 16px}.hero h2{font-size:clamp(23px,4vw,32px);margin:0 0 8px}.hero h2 span{color:var(--lime)}.hero p{color:var(--muted);margin:0;line-height:1.7}.grid{display:grid;grid-template-columns:240px minmax(0,1fr);gap:14px}.sidebar,.workspace,.stat,.quick{background:var(--panel);border:1px solid var(--line);border-radius:18px}.sidebar{padding:14px}.nav{display:grid;gap:7px}.nav button{text-align:right;background:transparent;color:var(--muted);padding:12px;border-radius:12px;display:flex;gap:10px;align-items:center}.nav button.active,.nav button:hover{background:#173a29;color:#eafff2}.side-title{font-size:11px;color:#749686;margin:20px 8px 9px}.status{padding:12px;background:#0b1d15;border-radius:12px;color:var(--muted);font-size:12px;line-height:1.7}.status strong{color:var(--lime)}.main{min-width:0}.stats{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:12px}.stat{padding:14px}.stat small{color:var(--muted)}.stat strong{display:block;font-size:24px;margin-top:7px}.workspace{overflow:hidden}.chat-head{display:flex;justify-content:space-between;align-items:center;padding:14px 16px;border-bottom:1px solid var(--line);gap:10px}.chat-head h3{margin:0;font-size:15px}.chat-head small{color:var(--muted)}.chat-area{height:390px;overflow:auto;padding:16px;background:radial-gradient(ellipse at top right,#17382766,transparent 65%),#0a1b13;display:flex;flex-direction:column;gap:12px}.bubble{max-width:85%;padding:12px 14px;line-height:1.7;border-radius:16px;white-space:pre-wrap;font-size:14px}.incoming{background:#1a3326;border:1px solid #294a35;align-self:flex-start;border-top-right-radius:5px}.outgoing{background:#164d32;align-self:flex-end;border-top-left-radius:5px}.bubble .who{font-size:10px;color:#9bc9a9;display:block;margin-bottom:3px}.compose{padding:12px;border-top:1px solid var(--line);display:grid;gap:9px}.compose textarea{resize:vertical;min-height:62px;max-height:180px;background:#081710;color:var(--text);border:1px solid #2b4d39;border-radius:12px;padding:12px;outline:none}.compose-row{display:flex;justify-content:space-between;align-items:center;gap:8px;flex-wrap:wrap}.quick{padding:12px;margin-top:12px}.quick h3{margin:0 0 10px;font-size:14px}.quick-items{display:flex;gap:8px;flex-wrap:wrap}.quick-items button{background:#163627;color:#c9f9d7;border:1px solid #29513a;border-radius:11px;padding:9px 11px;font-size:12px}.section{display:none}.section.show{display:block}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:10px}.tile{background:#10271e;border:1px solid var(--line);border-radius:16px;padding:15px}.tile h3{margin:0 0 6px}.tile p{margin:0;color:var(--muted);font-size:13px;line-height:1.6}.foot{color:#719080;text-align:center;font-size:11px;padding:18px}.toast{position:fixed;bottom:20px;left:50%;transform:translateX(-50%);background:#1b4930;border:1px solid #2b8050;color:#d8ffe5;padding:11px 18px;border-radius:99px;display:none;z-index:8}
+@media(max-width:760px){.app{padding:10px}.grid{grid-template-columns:1fr}.sidebar{padding:10px}.nav{grid-template-columns:repeat(3,1fr)}.nav button{justify-content:center;text-align:center;font-size:12px;padding:10px 7px}.side-title,.status{display:none}.stats{gap:7px}.stat{padding:11px}.stat strong{font-size:20px}.chat-area{height:55vh;min-height:300px}.badge{display:none}.hero{padding-top:20px}.top{top:4px}}
+</style>
+</head><body class="notranslate" translate="no"><div class="app">
+<header class="top"><div class="brand"><div class="logo">AI</div><div><h1>مساعد DXN الذكي</h1><p>طريقك نحو الحرية المالية</p></div></div><div class="top-actions"><span class="badge">● نسخة تجريبية محلية</span><button class="btn btn-secondary" onclick="showToast('هذه نسخة تجريبية؛ ربط واتساب يحتاج إعداد API الرسمي.')">ربط واتساب</button></div></header>
+<section class="hero"><div style="background:#183c29;border:1px solid #286a46;border-radius:12px;padding:10px 12px;margin-bottom:12px;color:#b8f5cc;font-size:12px">تنبيه: إذا ظهرت الكلمات غير صحيحة، أوقف ترجمة Chrome واختر «عرض الصفحة الأصلية».</div><h2>أهلاً بك في <span>مساعدك الذكي</span></h2><p>مساعد محادثات، مبيعات، استقبال العملاء، واستقطاب فريق DXN من لوحة واحدة.</p></section>
+<div class="grid"><aside class="sidebar"><div class="nav"><button class="active" data-tab="chat">💬 المحادثات</button><button data-tab="leads">👥 العملاء</button><button data-tab="catalog">🛍️ المنتجات</button><button data-tab="replies">⚡ الردود السريعة</button><button data-tab="settings">⚙️ الإعدادات</button></div><div class="side-title">حالة المساعد</div><div class="status"><strong>● جاهز للتجربة</strong><br>الردود هنا تجريبية. لن يتم إرسال أي رسالة حقيقية قبل ربط WhatsApp Business API.</div></aside>
+<main class="main">
+<div class="section show" id="chat"><div class="stats"><div class="stat"><small>محادثات اليوم</small><strong id="countChats">1</strong></div><div class="stat"><small>عملاء محتملون</small><strong id="countLeads">0</strong></div><div class="stat"><small>ردود جاهزة</small><strong>6</strong></div></div>
+<div class="workspace"><div class="chat-head"><div><h3>محادثة تجريبية</h3><small>العميل: زائر جديد · وضع اقتراح الرد</small></div><button class="btn btn-secondary" onclick="resetChat()">إعادة المحادثة</button></div><div class="chat-area" id="messages"><div class="bubble incoming"><span class="who">العميل</span>السلام عليكم، أريد معرفة منتجات DXN وكيف أستطيع الانضمام؟</div><div class="bubble outgoing"><span class="who">مساعد DXN AI · اقتراح</span>وعليكم السلام ورحمة الله وبركاته، أهلاً بك 🌿<br>يسرني أن أعرّفك بمنتجات DXN المتنوعة وبفرصة الانضمام إلى فريقنا. هل تحب أن تبدأ بالتعرف على المنتجات وأسعارها، أم على طريقة التسجيل والعمل؟</div></div><div class="compose"><textarea id="messageInput" placeholder="اكتب رسالة العميل هنا لتجربة رد المساعد..."></textarea><div class="compose-row"><button class="btn btn-secondary" onclick="generateReply()">✨ اقتراح رد AI (تجريبي)</button><button class="btn btn-primary" onclick="sendDemo()">إضافة الرسالة للمحادثة</button></div></div></div>
+<div class="quick"><h3>ردود سريعة</h3><div class="quick-items"><button onclick="quick('تعريف بالشركة')">تعريف DXN</button><button onclick="quick('المنتجات والأسعار')">المنتجات والأسعار</button><button onclick="quick('كيف أسجل؟')">طريقة التسجيل</button><button onclick="quick('أريد فرصة العمل')">فرصة العمل</button><button onclick="quick('شكراً لك')">رسالة شكر</button></div></div></div>
+<div class="section" id="leads"><div class="cards"><div class="tile"><h3>👤 قائمة العملاء</h3><p>في النسخة القادمة: تسجيل اسم العميل، رقم واتساب، اهتمامه، وحالة المتابعة.</p></div><div class="tile"><h3>🔔 متابعة ذكية</h3><p>اقتراح وقت مناسب للمتابعة وتنبيهك بالأشخاص الذين لم يردوا.</p></div><div class="tile"><h3>📝 أضف مهتمًا</h3><input id="leadName" placeholder="اسم العميل" style="width:100%;padding:10px;margin:8px 0;background:#081710;color:#fff;border:1px solid #294a35;border-radius:10px"><button class="btn btn-primary" onclick="addLead()">حفظ عميل تجريبي</button></div></div></div>
+<div class="section" id="catalog"><div class="cards"><div class="tile"><h3>☕ القهوة</h3><p>استكشف مجموعة قهوة DXN وأرسل تفاصيل المنتج عند الطلب.</p></div><div class="tile"><h3>🌱 المكملات والمنتجات</h3><p>سبيرولينا، لقاح النحل، منتجات جانوزي وغيرها. استخدم معلومات المنتج الرسمية وتجنب الادعاءات الطبية.</p></div><div class="tile"><h3>🧴 العناية الشخصية</h3><p>معجون الأسنان ومنتجات العناية ضمن الكتالوج.</p></div></div></div>
+<div class="section" id="replies"><div class="cards"><div class="tile"><h3>السلام والترحيب</h3><p>وعليكم السلام ورحمة الله وبركاته، أهلاً وسهلاً بك! يسعدني مساعدتك 🌷</p><button class="btn btn-secondary" onclick="copyText('وعليكم السلام ورحمة الله وبركاته، أهلاً وسهلاً بك! يسعدني مساعدتك 🌷')">نسخ</button></div><div class="tile"><h3>تعريف DXN</h3><p>DXN شركة تقدم منتجات متنوعة تشمل القهوة، الأغذية، والعناية الشخصية. أخبرني ما الذي ترغب بمعرفته لأساعدك.</p><button class="btn btn-secondary" onclick="copyText('DXN شركة تقدم منتجات متنوعة تشمل القهوة، الأغذية، والعناية الشخصية. أخبرني ما الذي ترغب بمعرفته لأساعدك.')">نسخ</button></div><div class="tile"><h3>الانضمام للفريق</h3><p>إذا كنت مهتمًا بالانضمام، يمكنني شرح خطوات التسجيل والعضوية ومشاركة رابط التسجيل بعد التأكد من التفاصيل.</p><button class="btn btn-secondary" onclick="copyText('إذا كنت مهتمًا بالانضمام، يمكنني شرح خطوات التسجيل والعضوية ومشاركة رابط التسجيل بعد التأكد من التفاصيل.')">نسخ</button></div></div></div>
+<div class="section" id="settings"><div class="cards"><div class="tile"><h3>🌐 لغة المساعد</h3><p>العربية • الفرنسية • لاحقًا الإنجليزية</p></div><div class="tile"><h3>🛡️ التحكم بالرد</h3><p>حالياً: اقتراح رد فقط. عند الربط الحقيقي يمكن إعداد موافقة يدوية أو رد تلقائي.</p></div><div class="tile"><h3>📲 رقم واتساب المخصص</h3><p>يمكن إدخال رقم واتساب Business عند تجهيز الربط الرسمي.</p></div></div></div>
+</main></div><footer class="foot">مساعد DXN الذكي · طريقك نحو الحرية المالية · نسخة أولية للتجربة</footer></div><div class="toast" id="toast"></div>
+<script>
+const tabs=document.querySelectorAll('.nav button');tabs.forEach(b=>b.addEventListener('click',()=>{tabs.forEach(x=>x.classList.remove('active'));b.classList.add('active');document.querySelectorAll('.section').forEach(s=>s.classList.remove('show'));document.getElementById(b.dataset.tab).classList.add('show')}));
+function showToast(t){let el=document.getElementById('toast');el.textContent=t;el.style.display='block';setTimeout(()=>el.style.display='none',2600)}
+function quick(txt){document.getElementById('messageInput').value=txt;generateReply()}
+function generateReply(){let q=document.getElementById('messageInput').value.trim();if(!q){showToast('اكتب رسالة أولاً');return}let reply=answerFor(q);let box=document.createElement('div');box.className='bubble outgoing';box.innerHTML='<span class="who">مساعد DXN AI · اقتراح</span>'+reply.replace(/\n/g,'<br>');document.getElementById('messages').appendChild(box);document.getElementById('messages').scrollTop=document.getElementById('messages').scrollHeight;}
+function answerFor(q){q=q.toLowerCase();if(q.includes('تسجيل')||q.includes('انضم')||q.includes('عضو'))return 'يسعدني اهتمامك بالانضمام إلى DXN 🌱\nيمكنني مساعدتك في فهم خطوات التسجيل ومزايا العضوية. هل تريد أن أرسل لك رابط التسجيل وأشرح الخطوات؟';if(q.includes('سعر')||q.includes('أسعار')||q.includes('منتج'))return 'لدينا مجموعة متنوعة من منتجات DXN. أخبرني باسم المنتج الذي تبحث عنه أو هل تود الاطلاع على قائمة المنتجات والأسعار المتوفرة؟\n(سأتحقق من السعر المحدّث قبل تأكيده.)';if(q.includes('عمل')||q.includes('فرصة')||q.includes('دخل'))return 'يمكنك التعرف على مشروع DXN وطبيعة البيع المباشر وبناء فريق. سأشرح لك آلية العمل بوضوح، مع التنبيه أن النتائج والدخل ليست مضمونة وتعتمد على الجهد والظروف. هل تود البدء بشرح مختصر؟';if(q.includes('شكرا')||q.includes('شكر'))return 'العفو، يسعدني خدمتك دائمًا 🌷 إذا احتجت أي معلومات عن المنتجات أو التسجيل فأنا هنا.';return 'أهلاً بك 🌿 شكراً على رسالتك. يسعدني مساعدتك في منتجات DXN أو الأسعار أو التسجيل وفرصة العمل. هل توضح لي أكثر ما تحتاجه حتى أقدم لك إجابة مناسبة؟';}
+function sendDemo(){let q=document.getElementById('messageInput').value.trim();if(!q){showToast('اكتب الرسالة أولاً');return}let box=document.createElement('div');box.className='bubble incoming';box.innerHTML='<span class="who">رسالة العميل (تجريبية)</span>'+q.replace(/\n/g,'<br>');document.getElementById('messages').appendChild(box);document.getElementById('messageInput').value='';document.getElementById('countChats').textContent=Number(document.getElementById('countChats').textContent)+1;document.getElementById('messages').scrollTop=document.getElementById('messages').scrollHeight;showToast('تمت إضافة الرسالة للتجربة');}
+function resetChat(){document.getElementById('messages').innerHTML='<div class="bubble incoming"><span class="who">العميل</span>السلام عليكم، أريد معرفة منتجات DXN وكيف أستطيع الانضمام؟</div><div class="bubble outgoing"><span class="who">مساعد DXN AI · اقتراح</span>وعليكم السلام ورحمة الله وبركاته، أهلاً بك 🌿<br>يسرني أن أعرّفك بمنتجات DXN المتنوعة وبفرصة الانضمام إلى فريقنا. هل تحب أن تبدأ بالتعرف على المنتجات وأسعارها، أم على طريقة التسجيل والعمل؟</div>';showToast('تمت إعادة المحادثة التجريبية')}
+function addLead(){let n=document.getElementById('leadName').value.trim();if(!n){showToast('أدخل اسم العميل');return}let c=document.getElementById('countLeads');c.textContent=Number(c.textContent)+1;document.getElementById('leadName').value='';showToast('تم حفظ '+n+' كتسجيل تجريبي (لن يحفظ بعد إغلاق الصفحة)')}
+function copyText(t){if(navigator.clipboard){navigator.clipboard.writeText(t).then(()=>showToast('تم نسخ الرد'))}else showToast('النسخ غير متاح في المتصفح الحالي')}
+</script></body></html>
